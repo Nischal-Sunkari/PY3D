@@ -34,7 +34,10 @@ class Cam:
     def draw(self):
         self.window.fill(self.ClearColor)
         for Triangle in self.Triangles:
-            pygame.draw.polygon(self.window, Triangle[0], [Triangle[1], Triangle[2], Triangle[3]])
+            v1 = self.ProjectPoint(Triangle[1])
+            v2 = self.ProjectPoint(Triangle[2])
+            v3 = self.ProjectPoint(Triangle[3])
+            pygame.draw.polygon(self.window, Triangle[0], [v1, v2, v3])
         pygame.display.flip()
 
     
@@ -56,15 +59,15 @@ class Cam:
 
     def ProjectPoint(self, point):
         x, y, z = point.x, point.y, point.z
-z        x, z = self.rotate2d((x, z), self.rotation.y)
+        x -= self.position.x; y -= self.position.y; z -= self.position.z
+        x, z = self.rotate2d((x, z), self.rotation.y)
         y, z = self.rotate2d((y, z), self.rotation.x)
 
         f = self.fov/z
         x,y = x*f, y*f
+        #https://youtu.be/g4E9iq0BixA?t=765
+
         return (self.centerX + int(x), self.centerY + int(y))
     
     def AddTriangle(self, color, v1, v2, v3):
-        v1 = self.ProjectPoint(v1)
-        v2 = self.ProjectPoint(v2)
-        v3 = self.ProjectPoint(v3)
         self.Triangles.append([color, v1, v2, v3])
