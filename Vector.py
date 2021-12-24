@@ -13,6 +13,9 @@ class Vector3:
         self.x = 0
         self.y = 0
         self.z = 0
+    
+    def Print(self, prefix):
+        print(prefix + str(self.x) + ", " + str(self.y) + ", " + str(self.z))
 
 class Vector2:
     def __init__(self, x, y):
