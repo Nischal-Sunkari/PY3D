@@ -1,39 +1,43 @@
-import pygame, sys, math, os
-from Camera import Cam
-from Vector import Vector3
-
-Speed = 5
-Sensitivity = math.pi
-
-window = pygame.display.set_mode([250, 250])
+from random import randint
+import pygame, sys
+import Constants
+import Object
+import Utils
+pygame.init()
+#Fix Rotate2D in Utils
+Objects = []
+window = pygame.display.set_mode((Constants.width, Constants.height))
 clock = pygame.time.Clock()
-camera = Cam(window, 90)
 
+Vertices, Surfaces = Utils.LoadModel("Monkey.obj")
+Colors = [(randint(0, 255), randint(0, 255), randint(0, 255)) for i in Surfaces]
+NewObject = Object.Object(Vertices, Surfaces, Colors)
+NewObject.Translate(Utils.Vector3(0, -1, 0))
+NewObject.Position.Print()
+Objects.append(NewObject)
 
-camera.AddTriangle((102, 255, 102), Vector3(10, -1, 10), Vector3(10, -1, -10), Vector3(-10, -1, 10))
-#camera.AddTriangle((102, 255, 102), Vector3(-10, -1, -10), Vector3(10, -1, -10), Vector3(-10, -1, 10))
-
-#camera.AddTriangle((51, 170, 255), Vector3(1, 1, 0), Vector3(-1, 1, 0), Vector3(-1, -1, 0))
-#camera.AddTriangle((255, 102, 102), Vector3(1, 1, 0), Vector3(1, -1, 0), Vector3(-1, -1, 0))
-
-camera.AddLine((255, 0, 0), Vector3(0, 0, 0), Vector3(2, 0, 0), 5)
-camera.AddLine((0, 255, 0), Vector3(0, 0, 0), Vector3(0, 2, 0), 5)
-camera.AddLine((0, 0, 255), Vector3(0, 0, 0), Vector3(0, 0, 2), 5)
-
-#pygame.event.get(); pygame.mouse.get_rel()
-#pygame.mouse.set_visible(0); pygame.event.set_grab(1)
-while True:
+totalDeltaTime = 0
+totalFrames = 0
+while(True):
     deltaTime = clock.tick()/1000
-    events = pygame.event.get()
-    for event in events:
-        if event.type == pygame.QUIT:
-            pygame.quit()
-            sys.exit()
-        #if event.type == pygame.MOUSEMOTION:
-            #camera.MouseRotate(event, sens)
-    #camera.rotation.y += deltaTime
-    camera.draw()
-    os.system("clear")
-    #camera.position.Print("Position: ")
-    #camera.rotation.Print("Rotation: ")
-    camera.UserControl(deltaTime, Speed, Sensitivity)
+    if(deltaTime != 0): totalDeltaTime += deltaTime
+    totalFrames += 1
+    avdT = totalDeltaTime/totalFrames
+    if(avdT != 0): print(1/avdT)
+
+
+    NewObject.Rotate(Utils.Vector3(0, 45 * deltaTime, 0))
+    window.fill((30, 30, 30))
+    for event in pygame.event.get():
+        if(event.type == pygame.QUIT): pygame.quit(); sys.exit()
+
+    for Model in Objects:
+        for s in range(len(Model.Surfaces)):
+            Surface = Model.Surfaces[s]
+            points = []
+            for p in Surface:
+                points.append(Model.Vertices[p])
+            Utils.ProjectPolygon(window, Model.Colors[p], points)
+
+            
+    pygame.display.flip()
